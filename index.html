@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+</head>
+
+<body>
+    <h1>WebSocket Client</h1>
+    <script>
+        const ws = new WebSocket(`ws://localhost:8080/ws`);
+        let clientIdInput;
+
+        function promptClientName() {
+            return new Promise(resolve => {
+                clientIdInput = prompt('Bitte Client-ID eingeben:');
+                resolve(clientIdInput);
+            });
+        }
+
+        ws.onopen = async function () {
+            console.log('Client gestartet');
+            const clientIdInput = await promptClientName();
+            ws.send(JSON.stringify({ "client_name": clientIdInput }));
+        };
+
+        ws.onmessage = function (event) {
+            const message = JSON.parse(event.data);
+            if (message.message_type === 'ticket_update') {
+                const tickets = message.tickets;
+                displayTickets(tickets);
+            } else {
+                console.log('keine Tickets');
+            }
+            console.log('number: Selbstzuw. q: quit');
+        };
+
+        function assignTicket() {
+            const ticketNumber = prompt('Ticketnummer für Selbstzuweisung eingeben:');
+            if (ticketNumber === null || ticketNumber.trim() === '') {
+                console.log('Ungültige Ticketnummer.');
+                return;
+            }
+
+            const message = [{ "id": parseInt(ticketNumber), "assignment": clientIdInput.trim() }];
+            ws.send(JSON.stringify(message));
+        }
+
+        function displayTickets(tickets) {
+            console.clear(); // Löscht vorherige Konsolenausgabe
+            console.log(`Client: ${clientIdInput}`);
+
+            if (tickets.length === 0) {
+                console.log('keine Tickets');
+            } else {
+                tickets.forEach(ticket => {
+                    console.log(`Ticket ${ticket.ID}: ${ticket.Assignment ? `zugewiesen an ${ticket.Assignment}` : 'noch nicht zugewiesen'}`);
+                });
+            }
+
+            console.log('number: Selbstzuw. q: quit');
+        }
+
+        window.onbeforeunload = function () {
+            ws.close();
+        };
+    </script>
+</body>
+
+</html>
