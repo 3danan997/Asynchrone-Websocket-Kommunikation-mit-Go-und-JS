@@ -1,4 +1,4 @@
-Asynchronous WebSocket Communication
+**Asynchronous WebSocket Communication**
 This project is part of the "Konzepte moderner Programmiersprachen" course at FH Aachen, led by Prof. Dr. Andreas Claßen. The goal is to implement real-time communication using WebSockets for a simulated trouble ticket system.
 
 Overview
